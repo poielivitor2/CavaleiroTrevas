@@ -2,6 +2,7 @@ export const CELL = 2.8;
 export const HEIGHT = 3.1;
 export type Cell = { x: number; z: number };
 export type Torch = { x: number; z: number; wallX: number; wallZ: number; nx: number; nz: number; yaw: number };
+export type Room = { door: Cell; normal: Cell; cells: Cell[] };
 
 export function createMaze(size = 25) {
   const grid: number[][] = Array.from({ length: size }, () => Array<number>(size).fill(1));
@@ -26,6 +27,26 @@ export function createMaze(size = 25) {
     if (middleRow) middleRow[current.x + dx / 2] = 0;
     if (endRow) endRow[current.x + dx] = 0;
     stack.push({ x: current.x + dx, z: current.z + dz });
+  }
+  const rooms: Room[] = [];
+  for (let z = 2; z < size - 2 && rooms.length < 4; z++) for (let x = 2; x < size - 2 && rooms.length < 4; x++) {
+    if (grid[z]?.[x] !== 0 || (x + z) % 4 !== 0) continue;
+    for (const [dx, dz] of ([[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][])) {
+      const doorX = x + dx, doorZ = z + dz;
+      if (grid[doorZ]?.[doorX] !== 1) continue;
+      const cells: Cell[] = [];
+      let valid = true;
+      for (let depth = 2; depth <= 4 && valid; depth++) for (let offset = -1; offset <= 1; offset++) {
+        const px = x + dx * depth + (dz * offset), pz = z + dz * depth + (dx * offset);
+        if (px <= 0 || pz <= 0 || px >= size - 1 || pz >= size - 1 || grid[pz]?.[px] !== 1) valid = false;
+        else cells.push({ x: px, z: pz });
+      }
+      if (!valid) continue;
+      grid[doorZ][doorX] = 0;
+      for (const cell of cells) grid[cell.z][cell.x] = 0;
+      rooms.push({ door: { x: doorX, z: doorZ }, normal: { x: dx, z: dz }, cells });
+      break;
+    }
   }
   const queue: Cell[] = [start];
   const parents = new Map<string, Cell>();
@@ -57,7 +78,7 @@ export function createMaze(size = 25) {
     torches.push({ x: (cell.x + 0.5 + dx * 0.46) * CELL, z: (cell.z + 0.5 + dz * 0.46) * CELL,
       wallX: cell.x + dx, wallZ: cell.z + dz, nx: -dx, nz: -dz, yaw: Math.atan2(-dx, -dz) });
   }
-  return { grid, size, start, end, path, exitNormal, torches, exits: [end] };
+  return { grid, size, start, end, path, exitNormal, torches, rooms, exits: [end] };
 }
 
 export type Maze = ReturnType<typeof createMaze>;

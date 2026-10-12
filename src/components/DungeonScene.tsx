@@ -34,6 +34,13 @@ function World() {
     <mesh position={[doorX, 1.25, doorZ]} rotation-y={Math.atan2(-normal.x, -normal.z)}>
       <planeGeometry args={[1.55, 2.5]} /><meshBasicMaterial map={resources.doorTex} color={SCENE_COLORS.gravel} />
     </mesh>
+    {MAZE.rooms.map((room, i) => {
+      const x = (room.door.x + 0.5 - room.normal.x * 0.5) * CELL;
+      const z = (room.door.z + 0.5 - room.normal.z * 0.5) * CELL;
+      return <mesh key={i} position={[x, 1.25, z]} rotation-y={Math.atan2(-room.normal.x, -room.normal.z)}>
+        <planeGeometry args={[1.5, 2.45]} /><meshBasicMaterial map={resources.doorTex} color={SCENE_COLORS.gravel} transparent opacity={0.78} side={THREE.DoubleSide} />
+      </mesh>;
+    })}
     <Suspense fallback={null}><FixedProps /></Suspense>
   </>;
 }
@@ -53,6 +60,27 @@ function FixedProps() {
         <planeGeometry args={[1.0, 1.25]} />
         <meshBasicMaterial map={skeleton} transparent alphaTest={0.3} color={SCENE_COLORS.bone} />
       </mesh>)}
+  </>;
+}
+
+function WaterDrops() {
+  const drops = useMemo(() => MAZE.path.filter((_, i) => i > 10 && i % 19 === 0).slice(0, 5).map((cell, i) => ({
+    x: (cell.x + 0.5) * CELL, z: (cell.z + 0.5) * CELL, phase: i * 0.27,
+  })), []);
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+  useFrame(({ clock }) => {
+    const time = clock.getElapsedTime();
+    refs.current.forEach((drop, i) => {
+      const point = drops[i];
+      if (!drop || !point) return;
+      drop.position.y = HEIGHT - ((time + point.phase) % 1.7) * 1.65;
+    });
+  });
+  return <>
+    {drops.map((drop, i) => <mesh key={i} ref={mesh => { refs.current[i] = mesh; }} position={[drop.x, HEIGHT, drop.z]}>
+      <cylinderGeometry args={[0.025, 0.045, 0.2, 4]} />
+      <meshBasicMaterial color="#7b9188" transparent opacity={0.7} />
+    </mesh>)}
   </>;
 }
 
@@ -147,6 +175,6 @@ export function DungeonScene(props: Props) {
     <color attach="background" args={[SCENE_COLORS.darkness]} />
     <fog attach="fog" args={[SCENE_COLORS.darkness, 3.8, 19]} />
     <ambientLight intensity={0.4} />
-    <World /><Player {...props} /><Suspense fallback={null}><Enemies {...props} /></Suspense><PixelPass />
+    <World /><WaterDrops /><Player {...props} /><Suspense fallback={null}><Enemies {...props} /></Suspense><PixelPass />
   </>;
 }

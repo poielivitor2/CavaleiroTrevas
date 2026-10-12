@@ -21,7 +21,14 @@ export function surfaceTexture(kind: 'wall' | 'floor' | 'door') {
       ctx.fillStyle = SCENE_COLORS.stone; ctx.globalAlpha = 0.6 + rand() * 0.4;
       ctx.fillRect(x + 1, y + 1, 30, 14);
       ctx.fillStyle = SCENE_COLORS.gravel; ctx.globalAlpha = 0.4; ctx.fillRect(x + 2, y + 1, 28, 1);
-      ctx.fillStyle = SCENE_COLORS.crack; ctx.fillRect(x + 2, y + 14, 28, 1);
+      ctx.fillStyle = SCENE_COLORS.crack; ctx.globalAlpha = 0.8; ctx.fillRect(x + 2, y + 14, 28, 1);
+    }
+    ctx.fillStyle = SCENE_COLORS.moss;
+    for (let i = 0; i < 26; i++) {
+      const x = Math.floor(rand() * 124), y = Math.floor(rand() * 116) + 6;
+      ctx.globalAlpha = 0.28 + rand() * 0.26;
+      ctx.fillRect(x, y, 2 + Math.floor(rand() * 5), 5 + Math.floor(rand() * 12));
+      if (rand() > 0.35) ctx.fillRect(x - 2, y + 4, 2 + Math.floor(rand() * 4), 2 + Math.floor(rand() * 5));
     }
   }
   ctx.globalAlpha = 1;
