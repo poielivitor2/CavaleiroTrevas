@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, Suspense } from 'react';
-import { useFrame, useThree } from '@react-three/fiber';
-import { useTexture, Environment, Lightformer } from '@react-three/drei';
+import { useFrame, useLoader, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { CELL, HEIGHT, MAZE, canMove, lineOfSight } from '@/lib/dungeon';
 import { buildSurfaces, buildVoid, SCENE_COLORS, surfaceTexture } from '@/lib/dungeon-art';
@@ -40,18 +39,19 @@ function World() {
 }
 
 function FixedProps() {
-  const maps = useTexture({ torch: torchImage, skeleton: skeletonImage });
-  useEffect(() => { Object.values(maps).forEach(t => { t.magFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; }); }, [maps]);
+  const torch = useLoader(THREE.TextureLoader, torchImage);
+  const skeleton = useLoader(THREE.TextureLoader, skeletonImage);
+  useEffect(() => { [torch, skeleton].forEach(t => { t.magFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace; }); }, [torch, skeleton]);
   const end = MAZE.end;
   return <>
     {MAZE.torches.map((t, i) => <mesh key={i} name={`wall-torch-${i}`} position={[t.x, 1.94, t.z]} rotation-y={t.yaw}>
       <planeGeometry args={[0.32, 0.96]} />
-      <meshBasicMaterial map={maps.torch} transparent alphaTest={0.3} side={THREE.DoubleSide} />
+      <meshBasicMaterial map={torch} transparent alphaTest={0.3} side={THREE.DoubleSide} />
     </mesh>)}
     {([[-0.68, -0.4, 0.3], [0.63, 0.32, -0.7], [-0.2, 0.83, 1.9]] as [number, number, number][]).map(([dx, dz, rotation], i) =>
       <mesh key={i} name={`fallen-warrior-${i}`} position={[(end.x + 0.5) * CELL + dx, 0.02 + i * 0.001, (end.z + 0.5) * CELL + dz]} rotation={[-Math.PI / 2, 0, rotation]}>
         <planeGeometry args={[1.0, 1.25]} />
-        <meshBasicMaterial map={maps.skeleton} transparent alphaTest={0.3} color={SCENE_COLORS.bone} />
+        <meshBasicMaterial map={skeleton} transparent alphaTest={0.3} color={SCENE_COLORS.bone} />
       </mesh>)}
   </>;
 }
@@ -91,7 +91,7 @@ function Player({ state, onUpdate }: Props) {
 }
 
 function Enemies({ state }: Props) {
-  const texture = useTexture(goblinImage);
+  const texture = useLoader(THREE.TextureLoader, goblinImage);
   const refs = useRef<(THREE.Mesh | null)[]>([]);
   const enemies = useRef(MAZE.path.filter((_, i) => i > 14 && i < MAZE.path.length - 10 && i % 31 === 0).slice(0, 5).map(c => ({ x: (c.x + 0.5) * CELL, z: (c.z + 0.5) * CELL, hp: 2, cooldown: 0, hit: false })));
   const lastReset = useRef(0);
@@ -147,7 +147,6 @@ export function DungeonScene(props: Props) {
     <color attach="background" args={[SCENE_COLORS.darkness]} />
     <fog attach="fog" args={[SCENE_COLORS.darkness, 3.8, 19]} />
     <ambientLight intensity={0.4} />
-    <Environment resolution={16}><Lightformer intensity={0.3} position={[0, HEIGHT, 0]} scale={10} /></Environment>
     <World /><Player {...props} /><Suspense fallback={null}><Enemies {...props} /></Suspense><PixelPass />
   </>;
 }
