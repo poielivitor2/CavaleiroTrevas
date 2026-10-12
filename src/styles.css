@@ -184,9 +184,9 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 .game-identity span { font-size: 7px; opacity: 0.6; }
 .crosshair { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font: 15px monospace; opacity: 0.4; }
 .weapon { position: absolute; bottom: -22px; width: 34%; max-width: 480px; height: auto; object-fit: contain; image-rendering: pixelated; transform-origin: bottom center; }
-.weapon.shield { left: -3%; }
+.weapon.shield { left: 1%; bottom: -58px; transform-origin: 24% 82%; transform: rotate(-7deg); }
 .weapon.sword { right: -3%; }
-.weapon.defending { transform: translate(20%, -12%) rotate(8deg); }
+.weapon.shield.defending { transform: translate(9%, -10%) rotate(4deg); }
 .weapon.attacking { transform: translate(-20%, -3%) rotate(-28deg); }
 .magic-flash { position: absolute; inset: 0; background: var(--magic-light); }
 .game-controls { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 15px; padding: 15px 18px; border: 1px solid var(--hud-outline); background: var(--hud-surface); white-space: nowrap; font-size: 7px; }
@@ -224,6 +224,8 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
   .game-controls { display: none; }
   .game-toolbar { bottom: 14px; left: 50%; transform: translateX(-50%); }
   .weapon { width: 48%; bottom: 78px; }
+  .weapon.shield { left: 0; bottom: 26px; transform-origin: 24% 82%; transform: rotate(-7deg); }
+  .weapon.shield.defending { transform: translate(8%, -8%) rotate(4deg); }
   .touch-controls { display: flex; position: absolute; bottom: 16px; left: 12px; right: 12px; justify-content: space-between; gap: 10px; }
   .touch-controls button { width: 36px; height: 38px; background: var(--hud-surface); color: var(--hud-text); border-color: var(--hud-outline); touch-action: none; }
   .touch-dpad { display: grid; grid-template-columns: repeat(3,36px); gap: 4px; }
