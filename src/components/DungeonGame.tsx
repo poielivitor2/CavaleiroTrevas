@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Compass, Pause, Play, RotateCcw, Shield, Sword, WandSparkles, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, DoorOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DungeonScene, initialState } from './DungeonScene';
-import shieldImage from '@/assets/shield.png';
+import shieldImage from '@/assets/Gemini_Generated_Image_2zi9992zi9992zi9-removebg-preview.png';
 import swordImage from '@/assets/sword.png';
 
 export function DungeonGame() {
